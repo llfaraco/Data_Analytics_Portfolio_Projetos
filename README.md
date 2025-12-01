@@ -1,4 +1,4 @@
-📉 Projeto de Portfólio 3: Modelo de Previsão de Risco de Evasão (Churn)
+📉 Modelo de Previsão de Risco de Evasão (Churn)
 
 💡 Objetivo do Projeto
 
