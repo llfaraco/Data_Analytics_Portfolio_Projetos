@@ -22,28 +22,8 @@ Prioridade: A lista de ID de Clientes de Alto Risco foi gerada (acessível na sa
 
 Sugiro a implementação de um Teste A/B para otimizar a alocação de recursos e validar a eficácia da intervenção:
 
-Ação
-
-Público
-
-Objetivo
-
-Métrica de Sucesso
-
-A (Intervenção Humana)
-
-50% dos clientes de Alto Risco
-
-Contato proativo e humanizado (ex: ligação ou chat VIP) para solucionar pendências de logística ou produto.
-
-Aumento na Retenção (vs. Grupo B) e queda no Contact Rate (vs. Grupo de Controle).
-
-B (Intervenção de Marketing)
-
-50% dos clientes de Alto Risco
-
-Disparo de oferta personalizada ou cupom de desconto para reengajamento.
-
-Aumento na Taxa de Recompra (vs. Grupo A) e queda no Churn.
+| Ação | Público | Objetivo | Métrica de Sucesso |
+| A (Intervenção Humana) | 50% dos clientes de Alto Risco | Contato proativo e humanizado (ex: ligação ou chat VIP) para solucionar pendências de logística ou produto. | Aumento na Retenção (vs. Grupo B) e queda no Contact Rate (vs. Grupo de Controle). |
+| B (Intervenção de Marketing) | 50% dos clientes de Alto Risco | Disparo de oferta personalizada ou cupom de desconto para reengajamento. | Aumento na Taxa de Recompra (vs. Grupo A) e queda no Churn. |
 
 O objetivo deste teste é determinar se a solução do problema na raiz (Ação A, mitigando o atrito) tem um retorno sobre o investimento maior do que o simples incentivo financeiro (Ação B, mascarando o problema).
