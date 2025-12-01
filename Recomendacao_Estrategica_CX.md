@@ -22,8 +22,24 @@ Prioridade: A lista de ID de Clientes de Alto Risco foi gerada (acessível na sa
 
 Sugiro a implementação de um Teste A/B para otimizar a alocação de recursos e validar a eficácia da intervenção:
 
-| Ação | Público | Objetivo | Métrica de Sucesso |
-| A (Intervenção Humana) | 50% dos clientes de Alto Risco | Contato proativo e humanizado (ex: ligação ou chat VIP) para solucionar pendências de logística ou produto. | Aumento na Retenção (vs. Grupo B) e queda no Contact Rate (vs. Grupo de Controle). |
-| B (Intervenção de Marketing) | 50% dos clientes de Alto Risco | Disparo de oferta personalizada ou cupom de desconto para reengajamento. | Aumento na Taxa de Recompra (vs. Grupo A) e queda no Churn. |
+Teste A: Intervenção Humana (Solução de Atrito)
 
-O objetivo deste teste é determinar se a solução do problema na raiz (Ação A, mitigando o atrito) tem um retorno sobre o investimento maior do que o simples incentivo financeiro (Ação B, mascarando o problema).
+Ação: Contato proativo e humanizado (ex: ligação ou chat VIP) para solucionar pendências de logística ou produto.
+
+Público: 50% dos clientes de Alto Risco.
+
+Objetivo: Reduzir o atrito e melhorar a percepção da marca.
+
+Métrica de Sucesso: Aumento na Retenção (vs. Grupo B) e queda no Contact Rate (vs. Grupo de Controle).
+
+Teste B: Intervenção de Marketing (Incentivo Financeiro)
+
+Ação: Disparo de oferta personalizada ou cupom de desconto para reengajamento.
+
+Público: 50% dos clientes de Alto Risco.
+
+Objetivo: Gerar nova transação e reativar o engajamento.
+
+Métrica de Sucesso: Aumento na Taxa de Recompra (vs. Grupo A) e queda no Churn.
+
+O objetivo deste teste é determinar se a solução do problema na raiz (Teste A, mitigando o atrito) tem um retorno sobre o investimento maior do que o simples incentivo financeiro (Teste B, mascarando o problema).
