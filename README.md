@@ -1,41 +1,53 @@
-📉 Modelo de Previsão de Risco de Evasão (Churn)
+# Churn | Modelo didático de risco e recomendação para CX
 
-💡 Objetivo do Projeto
+**Projeto de estudo · Python · scikit-learn · SQL conceitual**
 
-Este projeto move a análise de dados do nível descritivo (o que aconteceu) para o nível preditivo (o que irá acontecer). O objetivo é construir um modelo simples de Machine Learning para identificar, com antecedência, clientes com alto risco de Evasão (Churn) em uma plataforma digital (simulando um e-commerce ou serviço de assinatura).
+## Problema
 
-O valor central deste projeto para o negócio é a Mitigação Proativa de Perdas, permitindo que as equipes de CX, Atendimento e Marketing atuem antes que o cliente desista do serviço, impactando diretamente nas métricas de Retenção e LTV (Lifetime Value).
+Como transformar sinais de uso e atendimento em uma lista de clientes que merecem investigação por uma equipe de retenção?
 
-🛠️ Tecnologias Utilizadas
+O projeto simula esse fluxo com dados sintéticos. Não utiliza uma carteira real e não demonstra redução de churn em produção.
 
-Linguagem: Python
+## O que o código faz
 
-Análise de Dados: Pandas
+1. Gera **500 clientes sintéticos** com semente aleatória definida.
+2. Cria um alvo de churn a partir de regras de inatividade e tickets, com ruído adicional.
+3. Separa treino e teste.
+4. Ajusta `StandardScaler` no treino e treina regressão logística.
+5. Imprime acurácia e coeficientes.
+6. Calcula scores e apresenta exemplos acima do limiar de 0,50.
 
-Modelagem Estatística: Scikit-learn (Regressão Logística para classificação de risco)
+## Arquivos
 
-Simulação de Extração: SQL (Representando a etapa de Feature Engineering)
+| Arquivo | Papel |
+| --- | --- |
+| `churn_prediction_model.py` | Geração de dados, treinamento, avaliação e scores |
+| `churn_feature_engineering.sql` | Exemplo conceitual de extração e agregação de variáveis |
+| `Recomendacao_Estrategica_CX.md` | Proposta de leitura e ação para CX; não é evidência de efeito medido |
 
-📊 Estrutura e Etapas
+A consulta SQL descreve tabelas hipotéticas e não é executada pelo Python. Sua sintaxe e as regras de negócio precisam de adaptação ao banco e ao cenário real.
 
-O projeto simula um ciclo completo de Data Science, desde a coleta até a recomendação de negócio:
+## Como executar
 
-Feature Engineering (Simulação SQL): Definir e extrair as variáveis comportamentais do cliente (frequência de uso, reclamações, inatividade) que indicam risco. (Arquivo: churn_feature_engineering.sql)
+Na raiz, em um ambiente Python:
 
-Modelagem Preditiva (Python): Treinar o modelo de Regressão Logística para calcular o "Churn Risk Score". (Arquivo: churn_prediction_model.py)
+```bash
+python -m pip install pandas numpy scikit-learn tabulate
+python churn_prediction_model.py
+```
 
-Insight e Recomendação: Traduzir a saída do modelo em uma estratégia de ação de negócio para as equipes de CX e Produto. (Arquivo: Recomendacao_Estrategica_CX.md)
+A execução não foi validada nesta revisão documental.
 
-🔑 Insight Central
+## Como interpretar
 
-O modelo demonstrou que a inatividade (último login há mais de 30 dias) combinada com um alto volume de interações negativas com o Suporte (tickets abertos) são os preditores mais fortes de Churn. A ação de negócio deve focar na redução de tickets para clientes novos.
+O alvo foi construído com as próprias variáveis de inatividade e tickets. Portanto, o desempenho e os coeficientes refletem em parte **a regra da simulação**, não uma descoberta validada sobre clientes reais.
 
-⚙️ Como Executar
+A lista final aplica o modelo a toda a base simulada, incluindo exemplos utilizados no treino. Ela demonstra o formato de uma saída; não mede generalização.
 
-Verifique a simulação das features no arquivo SQL.
+## Evolução
 
-Execute o script Python: python churn_prediction_model.py
+Avaliar precision, recall, matriz de confusão e custo dos erros; comparar um baseline; estudar calibração e validação temporal; definir ações com a área de negócio e medir seus efeitos em dados reais autorizados.
 
-Analise o resultado da classificação e as recomendações estratégicas no arquivo Markdown.
+## Contato
 
-Este projeto demonstra a capacidade de mover a análise do nível descritivo ao preditivo, focando em métricas críticas de negócio como Retenção e LTV.
+[Lucas Faraco](https://www.linkedin.com/in/lucasrfaraco) · [E-mail](mailto:lucas.rfaraco@gmail.com) · [Perfil e portfólio](https://github.com/llfaraco)
