@@ -1,53 +1,48 @@
-# Churn | Modelo didático de risco e recomendação para CX
+# Churn | Experimento de classificação com baseline
 
-**Projeto de estudo · Python · scikit-learn · SQL conceitual**
+**Python · scikit-learn · Dados sintéticos · Avaliação em holdout**
 
-## Problema
+Como organizar sinais de uso e atendimento em um experimento de classificação? Este projeto gera 500 clientes sintéticos, separa 400 para treino e 100 para teste e compara regressão logística com um baseline de classe majoritária.
 
-Como transformar sinais de uso e atendimento em uma lista de clientes que merecem investigação por uma equipe de retenção?
+## Executar
 
-O projeto simula esse fluxo com dados sintéticos. Não utiliza uma carteira real e não demonstra redução de churn em produção.
-
-## O que o código faz
-
-1. Gera **500 clientes sintéticos** com semente aleatória definida.
-2. Cria um alvo de churn a partir de regras de inatividade e tickets, com ruído adicional.
-3. Separa treino e teste.
-4. Ajusta `StandardScaler` no treino e treina regressão logística.
-5. Imprime acurácia e coeficientes.
-6. Calcula scores e apresenta exemplos acima do limiar de 0,50.
-
-## Arquivos
-
-| Arquivo | Papel |
-| --- | --- |
-| `churn_prediction_model.py` | Geração de dados, treinamento, avaliação e scores |
-| `churn_feature_engineering.sql` | Exemplo conceitual de extração e agregação de variáveis |
-| `Recomendacao_Estrategica_CX.md` | Proposta de leitura e ação para CX; não é evidência de efeito medido |
-
-A consulta SQL descreve tabelas hipotéticas e não é executada pelo Python. Sua sintaxe e as regras de negócio precisam de adaptação ao banco e ao cenário real.
-
-## Como executar
-
-Na raiz, em um ambiente Python:
+Ambiente validado: Python 3.12.
 
 ```bash
-python -m pip install pandas numpy scikit-learn tabulate
+python -m pip install -r requirements.txt
 python churn_prediction_model.py
+python -m unittest discover -s tests
 ```
 
-A execução não foi validada nesta revisão documental.
+## Resultado medido na simulação
 
-## Como interpretar
+Semente 42, teste estratificado de 100 registros, limiar de 0,50:
 
-O alvo foi construído com as próprias variáveis de inatividade e tickets. Portanto, o desempenho e os coeficientes refletem em parte **a regra da simulação**, não uma descoberta validada sobre clientes reais.
+| Métrica | Regressão logística | Baseline |
+| --- | ---: | ---: |
+| Acurácia | 0,81 | 0,69 |
+| Precisão | 0,7143 | 0 |
+| Recall | 0,6452 | 0 |
+| F1 | 0,6780 | 0 |
+| ROC AUC | 0,8121 | 0,50 |
 
-A lista final aplica o modelo a toda a base simulada, incluindo exemplos utilizados no treino. Ela demonstra o formato de uma saída; não mede generalização.
+[Resultados e matriz de confusão](artifacts/metrics.json) · [Scores somente do teste](artifacts/holdout_scores.csv) · [Coeficientes](artifacts/coefficients.csv)
 
-## Evolução
+**Esses números não representam clientes reais.** O alvo foi construído com inatividade e tickets, então o resultado reflete a regra da simulação. Não há validação externa, temporal, de calibração ou efeito medido em retenção.
 
-Avaliar precision, recall, matriz de confusão e custo dos erros; comparar um baseline; estudar calibração e validação temporal; definir ações com a área de negócio e medir seus efeitos em dados reais autorizados.
+## Decisões técnicas
 
-## Contato
+- A separação é estratificada, com semente fixa.
+- Imputação e escala ficam em um `Pipeline` ajustado somente no treino.
+- O baseline é ajustado com a mesma partição de treino e avaliado no mesmo teste.
+- O CSV de scores contém somente IDs de teste, em vez de reaplicar o modelo à base inteira e chamar o resultado de generalização.
+- Os coeficientes correspondem a variáveis padronizadas; não são efeitos causais.
+- Três testes conferem separação, domínio dos scores, consistência da matriz, baseline e reprodução da base por semente.
 
-[Lucas Faraco](https://www.linkedin.com/in/lucasrfaraco) · [E-mail](mailto:lucas.rfaraco@gmail.com) · [Perfil e portfólio](https://github.com/llfaraco)
+A consulta `churn_feature_engineering.sql` permanece um exemplo conceitual, sem tabelas de origem disponíveis. Sua sintaxe e o alvo precisam de adaptação ao banco e ao horizonte temporal real; não é executada pelo Python.
+
+[Como discutir uma aplicação em CX](Recomendacao_Estrategica_CX.md)
+
+Implementação evoluída com assistência de IA, com código, métricas e comandos disponíveis para revisão.
+
+[Portfólio](https://github.com/llfaraco) · [LinkedIn](https://www.linkedin.com/in/lucasrfaraco)

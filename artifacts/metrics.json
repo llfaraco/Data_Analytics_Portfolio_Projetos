@@ -1,0 +1,50 @@
+{
+  "data_type": "synthetic",
+  "seed": 42,
+  "records": 500,
+  "train_records": 400,
+  "test_records": 100,
+  "threshold": 0.5,
+  "positive_rate_test": 0.31,
+  "model": {
+    "accuracy": 0.81,
+    "precision": 0.7142857142857143,
+    "recall": 0.6451612903225806,
+    "f1": 0.6779661016949152,
+    "roc_auc": 0.812061711079944,
+    "confusion_matrix": [
+      [
+        61,
+        8
+      ],
+      [
+        11,
+        20
+      ]
+    ]
+  },
+  "baseline": {
+    "accuracy": 0.69,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "roc_auc": 0.5,
+    "confusion_matrix": [
+      [
+        69,
+        0
+      ],
+      [
+        31,
+        0
+      ]
+    ]
+  },
+  "checks": {
+    "disjoint_train_test": true,
+    "preprocessing_fit_on_train_only": true,
+    "scoring_output_contains_test_only": true
+  },
+  "duration_seconds": 0.05,
+  "limitation": "O alvo é construído com inatividade e tickets; o resultado reflete a regra sintética e não comprova capacidade preditiva em clientes reais."
+}

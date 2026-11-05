@@ -1,45 +1,23 @@
-🎯 Relatório Executivo: Estratégia Proativa de Retenção Baseada em Risco de Churn
+# Da análise à decisão de retenção
 
-Data: 01/12/2025
-Analista: [Seu Nome]
-Modelo: Regressão Logística (Python/Scikit-learn)
+Este experimento usa dados sintéticos. Nenhuma ação abaixo foi aplicada a clientes reais, nem há redução de churn medida.
 
-1. Sumário Executivo
+## Leitura do experimento
 
-O modelo preditivo de Churn identificou 15% da base ativa de clientes com Alto Risco de Evasão nas próximas semanas. O insight mais relevante para a tomada de decisão é que o atrito causado pelo suporte (alto volume de tickets) é um preditor de risco mais forte do que a simples inatividade.
+O alvo foi criado por uma regra de inatividade e volume de tickets. O modelo aprende parte dessa regra. As métricas em `artifacts/metrics.json` servem para estudar treino, teste, comparação com baseline e classificação.
 
-Para proteger o LTV e reduzir o custo operacional futuro, é necessária uma intervenção proativa e direcionada.
+A matriz de confusão usa linhas = real, colunas = previsto, na ordem [0, 1]. A precisão mede quantos positivos previstos eram positivos; o recall mede quantos positivos reais foram recuperados. O limiar de 0,50 é didático.
 
-2. Principais Insights do Modelo
+## Hipótese de aplicação
 
-Risco Máximo na Jornada de Onboarding: O maior risco de Churn (maior pontuação no modelo) está concentrado em clientes que estão inativos (dias_inatividade > 45) E que tiveram 3 ou mais interações com o suporte logo após a primeira compra (falha de Logística/Atendimento).
+Em um cenário real autorizado, investigar fricções de atendimento e queda de uso antes de propor uma intervenção. Definir com CX o que é cancelamento, qual a data de previsão e qual janela futura será observada.
 
-Impacto Operacional: O volume de tickets de suporte (Métrica Operacional) apresentou um alto coeficiente no modelo, comprovando que falhas em Logística ou Atendimento são o principal gatilho de evasão para essa base específica.
+## Antes de uso operacional
 
-Prioridade: A lista de ID de Clientes de Alto Risco foi gerada (acessível na saída do script Python) e deve ser a prioridade da equipe de CX.
+- Separar clientes e períodos de treino e avaliação; usar somente variáveis disponíveis na data da decisão.
+- Comparar com regras simples e avaliar o custo dos falsos positivos e negativos.
+- Verificar representatividade, privacidade, qualidade e estabilidade dos dados.
+- Validar calibração e escolher o limiar de acordo com a capacidade de atendimento.
+- Medir a intervenção com um desenho adequado, como experimento com grupo de comparação.
 
-3. Recomendação de Ação Proativa (CX/Produto)
-
-Sugiro a implementação de um Teste A/B para otimizar a alocação de recursos e validar a eficácia da intervenção:
-
-Teste A: Intervenção Humana (Solução de Atrito)
-
-Ação: Contato proativo e humanizado (ex: ligação ou chat VIP) para solucionar pendências de logística ou produto.
-
-Público: 50% dos clientes de Alto Risco.
-
-Objetivo: Reduzir o atrito e melhorar a percepção da marca.
-
-Métrica de Sucesso: Aumento na Retenção (vs. Grupo B) e queda no Contact Rate (vs. Grupo de Controle).
-
-Teste B: Intervenção de Marketing (Incentivo Financeiro)
-
-Ação: Disparo de oferta personalizada ou cupom de desconto para reengajamento.
-
-Público: 50% dos clientes de Alto Risco.
-
-Objetivo: Gerar nova transação e reativar o engajamento.
-
-Métrica de Sucesso: Aumento na Taxa de Recompra (vs. Grupo A) e queda no Churn.
-
-O objetivo deste teste é determinar se a solução do problema na raiz (Teste A, mitigando o atrito) tem um retorno sobre o investimento maior do que o simples incentivo financeiro (Teste B, mascarando o problema).
+Um score sozinho não demonstra que a ação melhora retenção. Esse efeito precisaria ser medido.

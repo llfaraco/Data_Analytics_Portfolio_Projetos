@@ -1,105 +1,47 @@
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
+"""Experimento didático com dados sintéticos, sem evidência de eficácia comercial."""
+import argparse
+import json
+import time
+from pathlib import Path
 import numpy as np
+import pandas as pd
+from sklearn.dummy import DummyClassifier
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
-# ==============================================================================
-# 1. Simulação dos Dados (Feature Engineering e Extração SQL)
-#
-# Na vida real, estes dados seriam o resultado final da query em
-# churn_feature_engineering.sql, após a limpeza e transformação.
-#
-# Features:
-# - dias_inatividade: Dias desde o último login/uso. (Alto = Risco)
-# - volume_tickets_ultimos_60d: Nº de tickets abertos recentemente. (Alto = Risco)
-# - valor_medio_transacao: Média de gasto do cliente. (Baixo = Risco)
-# - churn: Variável alvo (1 = Saiu, 0 = Não saiu).
-# ==============================================================================
+FEATURES=['dias_inatividade','volume_tickets_ultimos_60d','valor_medio_transacao','frequencia_uso_mensal']
+ROOT=Path(__file__).resolve().parent
 
-# Gerando dados simulados para 500 clientes
-np.random.seed(42)
-data_size = 500
-df = pd.DataFrame({
-    'id_cliente': range(1, data_size + 1),
-    'dias_inatividade': np.random.randint(0, 100, data_size),
-    'volume_tickets_ultimos_60d': np.random.randint(0, 5, data_size),
-    'valor_medio_transacao': np.random.uniform(50, 500, data_size),
-    'frequencia_uso_mensal': np.random.randint(1, 30, data_size),
-})
+def simulate(n=500,seed=42):
+    if n<50:raise ValueError('Use pelo menos 50 registros na simulação')
+    rng=np.random.default_rng(seed)
+    df=pd.DataFrame({'id_cliente':range(1,n+1),'dias_inatividade':rng.integers(0,100,n),'volume_tickets_ultimos_60d':rng.integers(0,5,n),'valor_medio_transacao':rng.uniform(50,500,n),'frequencia_uso_mensal':rng.integers(1,30,n)})
+    df['churn']=((df.dias_inatividade>60)&(df.volume_tickets_ultimos_60d>=2)).astype(int)
+    df.loc[rng.choice(n,size=int(n*.1),replace=False),'churn']=1
+    return df
 
-# Criando a variável alvo 'churn' de forma correlacionada:
-# Clientes inativos E com muitos tickets são mais propensos a dar churn
-df['churn'] = ((df['dias_inatividade'] > 60) & (df['volume_tickets_ultimos_60d'] >= 2)).astype(int)
-df.loc[df.sample(frac=0.1, random_state=1).index, 'churn'] = 1 # Adiciona ruído de churn
+def evaluate(y,pred,prob):
+    return {'accuracy':float(accuracy_score(y,pred)),'precision':float(precision_score(y,pred,zero_division=0)),'recall':float(recall_score(y,pred,zero_division=0)),'f1':float(f1_score(y,pred,zero_division=0)),'roc_auc':float(roc_auc_score(y,prob)),'confusion_matrix':confusion_matrix(y,pred,labels=[0,1]).tolist()}
 
-# Definindo as features (variáveis preditoras)
-FEATURES = [
-    'dias_inatividade',
-    'volume_tickets_ultimos_60d',
-    'valor_medio_transacao',
-    'frequencia_uso_mensal'
-]
+def run(output=ROOT/'artifacts',seed=42):
+    start=time.perf_counter();df=simulate(seed=seed)
+    train,test=train_test_split(df,test_size=.2,random_state=seed,stratify=df.churn)
+    if set(train.id_cliente)&set(test.id_cliente):raise ValueError('Sobreposição entre treino e teste')
+    model=make_pipeline(SimpleImputer(strategy='median'),StandardScaler(),LogisticRegression(solver='liblinear',random_state=seed))
+    model.fit(train[FEATURES],train.churn)
+    pred=model.predict(test[FEATURES]);prob=model.predict_proba(test[FEATURES])[:,1]
+    baseline=DummyClassifier(strategy='prior').fit(train[FEATURES],train.churn)
+    bp=baseline.predict(test[FEATURES]);bprob=baseline.predict_proba(test[FEATURES])[:,1]
+    metrics={'data_type':'synthetic','seed':seed,'records':len(df),'train_records':len(train),'test_records':len(test),'threshold':.5,'positive_rate_test':float(test.churn.mean()),'model':evaluate(test.churn,pred,prob),'baseline':evaluate(test.churn,bp,bprob),'checks':{'disjoint_train_test':True,'preprocessing_fit_on_train_only':True,'scoring_output_contains_test_only':True},'duration_seconds':round(time.perf_counter()-start,4),'limitation':'O alvo é construído com inatividade e tickets; o resultado reflete a regra sintética e não comprova capacidade preditiva em clientes reais.'}
+    output=Path(output);output.mkdir(parents=True,exist_ok=True)
+    scored=test[['id_cliente','churn']].copy();scored['churn_risk_score']=prob;scored['predicted_churn']=pred;scored.sort_values('churn_risk_score',ascending=False).to_csv(output/'holdout_scores.csv',index=False)
+    pd.DataFrame({'feature':FEATURES,'coefficient':model.named_steps['logisticregression'].coef_[0]}).to_csv(output/'coefficients.csv',index=False)
+    (output/'metrics.json').write_text(json.dumps(metrics,ensure_ascii=False,indent=2)+'\n')
+    print(json.dumps(metrics,ensure_ascii=False,indent=2));return metrics,train,test,scored
 
-X = df[FEATURES]
-y = df['churn']
-
-# ==============================================================================
-# 2. Preparação e Treinamento do Modelo Preditivo
-# ==============================================================================
-
-# Dividindo dados em treinamento e teste
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Normalizando as features (essencial para Regressão Logística)
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-
-# Treinando o modelo (Regressão Logística, simples e interpretável)
-model = LogisticRegression(solver='liblinear', random_state=42)
-model.fit(X_train_scaled, y_train)
-
-# ==============================================================================
-# 3. Avaliação e Geração do Churn Risk Score
-# ==============================================================================
-
-# Previsão no conjunto de testes
-y_pred = model.predict(X_test_scaled)
-# y_proba = model.predict_proba(X_test_scaled)[:, 1] # Probabilidade de Churn
-
-print("=====================================================================")
-print("### 📉 Avaliação do Modelo de Previsão de CHURN")
-print("=====================================================================")
-
-# Acurácia
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Acurácia do Modelo no Teste: {accuracy * 100:.2f}%\n")
-
-# Coeficientes: Mostra a importância de cada feature (interpretabilidade)
-print("### Coeficientes do Modelo (Importância das Features):")
-feature_importance = pd.Series(model.coef_[0], index=FEATURES).sort_values(ascending=False)
-print(feature_importance.to_markdown(numalign="left", stralign="left"))
-print("\n*Um coeficiente positivo indica que a feature aumenta o risco de Churn.")
-
-
-# ==============================================================================
-# 4. Geração do Churn Risk Score (O Insight para a Ação de Negócio)
-# ==============================================================================
-
-# Aplicando o modelo em toda a base de dados (simulação de clientes "ativos")
-df['churn_risk_score'] = model.predict_proba(scaler.transform(X))[:, 1]
-
-# Identificando clientes de ALTO RISCO (probabilidade > 50%)
-df_alto_risco = df[df['churn_risk_score'] > 0.50].sort_values(by='churn_risk_score', ascending=False)
-
-print("\n=====================================================================")
-print(f"### 🎯 Lista de Clientes de ALTO RISCO ({len(df_alto_risco)} encontrados)")
-print("=====================================================================")
-
-# Resultado: Lista de clientes que a equipe de CX deve abordar PROATIVAMENTE
-print(df_alto_risco[['id_cliente', 'churn_risk_score', 'dias_inatividade', 'volume_tickets_ultimos_60d']].head(10).to_markdown(index=False, numalign="left", stralign="left"))
-
-print("\n---")
-print("A saída do modelo é uma lista acionável. A recomendação estratégica para o negócio está no arquivo Recomendacao_Estrategica_CX.md.")
+if __name__=='__main__':
+    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,default=ROOT/'artifacts');p.add_argument('--seed',type=int,default=42);a=p.parse_args();run(a.output,a.seed)
